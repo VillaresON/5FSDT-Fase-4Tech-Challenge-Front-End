@@ -1,78 +1,63 @@
-import { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Text } from "react-native";
 import api from "../../services/api";
 
-export default function StudentEdit({ route, navigation }) {
-  const { student } = route.params;
+export default function StudentEditScreen({ route, navigation }) {
+  const { studentId } = route.params;
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const [name, setName] = useState(student.name);
-  const [email, setEmail] = useState(student.email);
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        const res = await api.get(`/students/${studentId}`);
+        const student = res.data;
+        setName(student.name);
+        setEmail(student.email);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudent();
+  }, [studentId]);
 
-  async function handleUpdate() {
+  const handleSubmit = async () => {
+    if (!name || !email) {
+      Alert.alert("Erro", "Preencha todos os campos!");
+      return;
+    }
+
     try {
-      await api.put(`/students/${student.id}`, {
-        name,
-        email,
-      });
+      await api.put(`/students/${studentId}`, { name, email });
+      Alert.alert("Sucesso", "Aluno atualizado!");
       navigation.goBack();
     } catch (err) {
-      console.log("Erro ao editar estudante:", err);
+      console.log(err);
+      Alert.alert("Erro", "Não foi possível atualizar o aluno");
     }
-  }
+  };
 
-  async function handleDelete() {
-    Alert.alert("Confirmação", "Deseja realmente excluir?", [
-      { text: "Cancelar" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api.delete(`/students/${student.id}`);
-            navigation.goBack();
-          } catch (err) {
-            console.log("Erro ao excluir estudante:", err);
-          }
-        },
-      },
-    ]);
-  }
+  if (loading) return null;
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22 }}>Editar Estudante</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backText}>← Voltar</Text>
+      </TouchableOpacity>
 
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        style={{
-          backgroundColor: "#eee",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 8,
-        }}
-      />
-
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        style={{
-          backgroundColor: "#eee",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 8,
-        }}
-      />
-
-      <Button title="Salvar" onPress={handleUpdate} />
-
-      <View style={{ marginTop: 20 }}>
-        <Button
-          title="Excluir"
-          color="red"
-          onPress={handleDelete}
-        />
-      </View>
+      <TextInput style={styles.input} placeholder="Nome" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
+      <Button title="Salvar Alterações" onPress={handleSubmit} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+  backBtn: { marginBottom: 12 },
+  backText: { color: "#2196f3", fontWeight: "bold" },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 8, marginBottom: 16 },
+});

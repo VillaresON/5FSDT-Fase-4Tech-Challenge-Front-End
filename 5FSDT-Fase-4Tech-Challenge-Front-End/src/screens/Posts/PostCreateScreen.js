@@ -1,75 +1,74 @@
-import React, { useState, useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../../services/api";
-import { AuthContext } from "../../context/AuthContext";
 
 export default function PostCreateScreen({ navigation }) {
-  const { user } = useContext(AuthContext);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCreate = async () => {
-    if (!title || !content) {
-      Alert.alert("Erro", "Preencha todos os campos!");
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
 
+    setLoading(true);
+
     try {
-      await api.post("/posts", {
-        title,
-        content,
-        author: user.name,
-      });
+      // Faz requisição POST para criar post
+      await api.post("/posts", { title, content });
 
       Alert.alert("Sucesso", "Post criado com sucesso!");
-      navigation.goBack();
+      setTitle("");
+      setContent("");
+      navigation.navigate("PostList"); // volta para a lista de posts
     } catch (err) {
-      console.log("Erro ao criar post:", err.response?.data || err.message);
-      Alert.alert("Erro", "Não foi possível criar o post.");
+      console.log(err.response?.data || err);
+      Alert.alert("Erro", "Não foi possível criar o post");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#0000ff" />;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Criar Post</Text>
-
+      <Text style={styles.label}>Título</Text>
       <TextInput
         style={styles.input}
-        placeholder="Título"
         value={title}
         onChangeText={setTitle}
+        placeholder="Digite o título do post"
       />
 
+      <Text style={styles.label}>Conteúdo</Text>
       <TextInput
-        style={[styles.input, { height: 150 }]}
-        placeholder="Conteúdo"
+        style={[styles.input, { height: 120 }]}
         value={content}
         onChangeText={setContent}
+        placeholder="Digite o conteúdo do post"
         multiline
       />
 
-      <Button title="Salvar" onPress={handleCreate} />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Criar Post</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.button, styles.cancel]} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>Cancelar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    backgroundColor: "#f1f1f1",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 15,
-    fontSize: 16,
-  },
+  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  label: { fontWeight: "bold", marginBottom: 8, marginTop: 16 },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12 },
+  button: { backgroundColor: "#4caf50", padding: 14, borderRadius: 8, marginTop: 20, alignItems: "center" },
+  buttonText: { color: "#fff", fontWeight: "bold" },
+  cancel: { backgroundColor: "#f44336" },
 });

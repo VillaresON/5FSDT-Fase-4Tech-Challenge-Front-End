@@ -1,108 +1,47 @@
 import React, { useEffect, useState } from "react";
-import {
-    View,
-    Text,
-    ScrollView,
-    Button,
-    StyleSheet,
-    Alert,
-} from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import api from "../../services/api";
 
 export default function PostReadScreen({ route, navigation }) {
-    const { id } = route.params;
-    const [post, setPost] = useState(null);
+  const { postId } = route.params;
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const loadPost = async () => {
-        try {
-            const response = await api.get(`/posts/${id}`);
-            setPost(response.data);
-        } catch (err) {
-            console.log("Erro ao carregar post:", err);
-        }
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await api.get(`/posts/${postId}`);
+        setPost(res.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchPost();
+  }, [postId]);
 
-    useEffect(() => {
-        loadPost();
-    }, []);
+  if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#0000ff" />;
+  if (!post) return <Text style={{ padding: 16 }}>Post não encontrado</Text>;
 
-    const handleDelete = () => {
-        Alert.alert("Confirmação", "Deseja realmente excluir este post?", [
-            { text: "Cancelar" },
-            {
-                text: "Excluir",
-                style: "destructive",
-                onPress: async () => {
-                    try {
-                        await api.delete(`/posts/${id}`);
-                        navigation.goBack();
-                    } catch (err) {
-                        console.log("Erro ao excluir post:", err);
-                    }
-                },
-            },
-        ]);
-    };
+  return (
+    <ScrollView style={styles.container}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backText}>← Voltar</Text>
+      </TouchableOpacity>
 
-    if (!post) {
-        return (
-            <View style={styles.container}>
-                <Text>Carregando...</Text>
-            </View>
-        );
-    }
-
-    return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>{post.title}</Text>
-            <Text style={styles.author}>Autor: {post.author}</Text>
-            <Text style={styles.date}>
-                Criado em: {new Date(post.createdAt).toLocaleString()}
-            </Text>
-
-            <Text style={styles.content}>{post.content}</Text>
-
-            <View style={styles.buttonContainer}>
-                <Button
-                    title="Editar"
-                    onPress={() => navigation.navigate("PostEdit", { post })}
-                />
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <Button title="Excluir" color="red" onPress={handleDelete} />
-            </View>
-        </ScrollView>
-    );
+      <Text style={styles.title}>{post.title}</Text>
+      <Text style={styles.author}>Autor: {post.author?.name}</Text>
+      <Text style={styles.content}>{post.content}</Text>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: "#fff",
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    author: {
-        fontSize: 16,
-        color: "#555",
-        marginBottom: 5,
-    },
-    date: {
-        fontSize: 14,
-        color: "#888",
-        marginBottom: 15,
-    },
-    content: {
-        fontSize: 16,
-        lineHeight: 24,
-        marginBottom: 20,
-    },
-    buttonContainer: {
-        marginVertical: 5,
-    },
+  container: { flex: 1, padding: 16 },
+  backBtn: { marginBottom: 12 },
+  backText: { color: "#2196f3", fontWeight: "bold" },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 8 },
+  author: { fontSize: 14, color: "#555", marginBottom: 16 },
+  content: { fontSize: 16 },
 });

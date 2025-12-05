@@ -1,54 +1,84 @@
-import { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, Button } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import api from "../../services/api";
 
-export default function StudentList({ navigation }) {
+export default function StudentListScreen({ navigation }) {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  async function loadStudents() {
+  const fetchStudents = async () => {
     try {
-      const response = await api.get("/students");
-      setStudents(response.data);
+      const res = await api.get("/students");
+      setStudents(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
-      console.log("Erro ao carregar estudantes:", err);
+      console.log(err);
+      setStudents([]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", loadStudents);
-    return unsubscribe;
-  }, [navigation]);
+    fetchStudents();
+  }, []);
+
+  const handleDelete = (id) => {
+    Alert.alert(
+      "Confirmar exclusão",
+      "Deseja realmente excluir este aluno?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", style: "destructive", onPress: async () => {
+            try {
+              await api.delete(`/students/${id}`);
+              fetchStudents();
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#0000ff" />;
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Button
-        title="Novo Estudante"
-        onPress={() => navigation.navigate("StudentCreate")}
-      />
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.createBtn} onPress={() => navigation.navigate("StudentCreate")}>
+        <Text style={styles.createText}>Criar Aluno</Text>
+      </TouchableOpacity>
 
       <FlatList
-        style={{ marginTop: 20 }}
         data={students}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={{
-              padding: 15,
-              backgroundColor: "#eee",
-              marginTop: 10,
-              borderRadius: 8,
-            }}
-            onPress={() =>
-              navigation.navigate("StudentEdit", { student: item })
-            }
-          >
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-              {item.name}
-            </Text>
-            <Text>{item.email}</Text>
-          </TouchableOpacity>
+          <View style={styles.card}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text>Email: {item.email}</Text>
+            <Text>Role: {item.role}</Text>
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => navigation.navigate("StudentEdit", { studentId: item.id })}>
+                <Text style={styles.edit}>Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                <Text style={styles.delete}>Excluir</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+  createBtn: { backgroundColor: "#4caf50", padding: 12, borderRadius: 8, marginBottom: 16 },
+  createText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
+  card: { backgroundColor: "#f5f5f5", padding: 12, borderRadius: 8, marginBottom: 12 },
+  name: { fontSize: 16, fontWeight: "bold" },
+  actions: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
+  edit: { color: "#2196f3", fontWeight: "bold" },
+  delete: { color: "#f44336", fontWeight: "bold" },
+});

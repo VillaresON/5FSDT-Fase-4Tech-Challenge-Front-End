@@ -1,67 +1,44 @@
-import { useState } from "react";
-import { View, Text, TextInput, Button } from "react-native";
+import React, { useState } from "react";
+import { View, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Text } from "react-native";
 import api from "../../services/api";
 
-export default function TeacherCreate({ navigation }) {
+export default function TeacherCreateScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("professor");
 
-  async function handleCreate() {
+  const handleSubmit = async () => {
+    if (!name || !email) {
+      Alert.alert("Erro", "Preencha todos os campos!");
+      return;
+    }
+
     try {
-      await api.post("/teachers", {
-        name,
-        email,
-        password,
-      });
+      await api.post("/teachers", { name, email, role });
+      Alert.alert("Sucesso", "Professor criado!");
       navigation.goBack();
     } catch (err) {
-      console.log("Erro ao criar professor:", err.response?.data);
+      console.log(err);
+      Alert.alert("Erro", "Não foi possível criar o professor");
     }
-  }
+  };
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22 }}>Novo Professor</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backText}>← Voltar</Text>
+      </TouchableOpacity>
 
-      <TextInput
-        placeholder="Nome"
-        style={{
-          backgroundColor: "#eee",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 8,
-        }}
-        value={name}
-        onChangeText={setName}
-      />
-
-      <TextInput
-        placeholder="E-mail"
-        style={{
-          backgroundColor: "#eee",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 8,
-        }}
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      <TextInput
-        placeholder="Senha"
-        secureTextEntry
-        style={{
-          backgroundColor: "#eee",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 8,
-        }}
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <Button title="Salvar" onPress={handleCreate} />
+      <TextInput style={styles.input} placeholder="Nome" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
+      <Button title="Criar Professor" onPress={handleSubmit} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+  backBtn: { marginBottom: 12 },
+  backText: { color: "#2196f3", fontWeight: "bold" },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 8, marginBottom: 16 },
+});
