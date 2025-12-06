@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import MainMenu from "../../components/MainMenu";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
@@ -79,12 +80,20 @@ export default function PostListScreen({ navigation }) {
 
   if (loading) {
     return (
-      <Screen>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator size="large" />
-          <Text style={{ marginTop: spacing.sm }}>Carregando posts...</Text>
-        </View>
-      </Screen>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <ActivityIndicator size="large" />
+            <Text style={{ marginTop: spacing.sm }}>Carregando posts...</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     );
   }
 

@@ -22,14 +22,13 @@ export function AuthProvider({ children }) {
     loadStorage();
   }, []);
 
-  async function login(email, password, type = "teacher") {
-    const endpoint =
-      type === "student" ? "/students/login" : "/auth/login";
-
-    const payload =
-      type === "student" ? { email } : { email, password };
-
-    const res = await api.post(endpoint, payload);
+  // ✅ LOGIN AGORA RECEBE TYPE
+  async function login(email, password, type) {
+    const res = await api.post("/auth/login", {
+      email,
+      password,
+      type, // ✅ AGORA ENVIA
+    });
 
     const { token, user } = res.data;
 
@@ -39,7 +38,6 @@ export function AuthProvider({ children }) {
     api.defaults.headers.common.Authorization = `Bearer ${token}`;
     setUser(user);
   }
-
 
   async function logout() {
     await AsyncStorage.clear();
@@ -52,12 +50,11 @@ export function AuthProvider({ children }) {
       value={{
         user,
         loading,
-        isAuthenticated: !!user,
-        isAdmin: !!user?.isAdmin,
-        isTeacher: !!user && !user.isStudent,
-        isStudent: !!user?.isStudent,
         login,
         logout,
+        isAdmin: user?.isAdmin,
+        isTeacher: user?.type === "teacher",
+        isStudent: user?.type === "student",
       }}
     >
       {children}
