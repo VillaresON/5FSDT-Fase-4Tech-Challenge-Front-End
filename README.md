@@ -138,7 +138,7 @@ docker pull villares/4fase-tech-challenge-front-end:latest
 
 ### Executar container
 ```bash
-docker run --name 4FaseTechChallengeFrontEnd -p 80:80 villares/4fase-tech-challenge-front-end:latest
+docker run --name 4FaseTechChallengeFrontEnd -p 8080:80 villares/4fase-tech-challenge-front-end:latest
 ```
 
 
