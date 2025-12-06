@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useCallback, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { View, Text, Button, Alert, ActivityIndicator, TextInput } from "react-native";
 import api from "../../api/api";
 import Screen from "../../components/Screen";
@@ -27,44 +28,47 @@ export default function PostDetailsScreen({ route, navigation }) {
     }
   }
 
-  useEffect(() => {
-    loadPost();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadPost();
+    }, [id])
+  );
+
 
   async function handleDelete() {
-    Alert.alert(
-      "Excluir",
-      "Deseja realmente excluir?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          async onPress() {
-            try {
-              await api.delete(`/posts/${id}`);
-              setDeleted(true);
+    Alert.alert("Confirmar exclusão", "Deseja excluir este post?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Excluir",
+        style: "destructive",
+        async onPress() {
+          try {
+            const res = await api.delete(`/posts/${id}`);
 
-              Alert.alert(
-                "Sucesso",
-                "Post excluído com sucesso",
-                [
-                  {
-                    text: "OK",
-                    onPress: () => navigation.goBack()
-                  }
-                ]
-              );
-            } catch (err) {
-              Alert.alert(
-                "Erro",
-                err.response?.data?.error || "Erro ao excluir"
-              );
+            // ✅ STATUS 2xx = SUCESSO
+            if (res.status === 200 || res.status === 204) {
+              Alert.alert("Sucesso", "Post excluído com sucesso", [
+                { text: "OK", onPress: () => navigation.goBack() }
+              ]);
+              return;
             }
+
+            Alert.alert("Erro", "Resposta inesperada do servidor");
+          } catch (err) {
+            // ✅ 404 após delete = estado esperado
+            if (err.response?.status === 404) {
+              navigation.goBack();
+              return;
+            }
+
+            Alert.alert(
+              "Erro",
+              err.response?.data?.error || "Erro ao excluir"
+            );
           }
         }
-      ]
-    );
+      }
+    ]);
   }
 
   async function handleSendComment() {
@@ -113,50 +117,123 @@ export default function PostDetailsScreen({ route, navigation }) {
         <Text style={{ fontSize: 22, fontWeight: "700", marginBottom: spacing.sm }}>
           {post.title}
         </Text>
-        {post.author?.name && (
+        {post.Teacher?.name && (
           <Text style={{ color: colors.muted, marginBottom: spacing.sm }}>
-            Autor: {post.author.name}
+            Autor: {post.Teacher.name}
           </Text>
         )}
         <Text style={{ fontSize: 16, lineHeight: 22 }}>{post.content}</Text>
       </Card>
 
       {/* comentários simples */}
+      {/* Comentários */}
       <Card>
-        <Text style={{ fontWeight: "600", marginBottom: spacing.sm }}>Comentários</Text>
-        {(post.comments || []).length === 0 ? (
+        <Text
+          style={{
+            fontWeight: "700",
+            fontSize: 16,
+            marginBottom: spacing.md,
+          }}
+        >
+          Comentários
+        </Text>
+
+        {(post.Comments || []).length === 0 ? (
           <Text style={{ color: colors.muted, marginBottom: spacing.sm }}>
             Ainda não há comentários.
           </Text>
         ) : (
-          (post.comments || []).map((c) => (
+          (post.Comments || []).map((c) => (
             <View
               key={c.id}
-              style={{ borderTopWidth: 1, borderTopColor: "#eee", paddingVertical: 6 }}
+              style={{
+                flexDirection: "row",
+                marginBottom: spacing.sm,
+                padding: spacing.sm,
+                borderRadius: 10,
+                backgroundColor: "#f7f7f7",
+              }}
             >
-              <Text>{c.content}</Text>
+              {/* Avatar */}
+              <View
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: colors.primary,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: spacing.sm,
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "700" }}>
+                  💬
+                </Text>
+              </View>
+
+              {/* Conteúdo */}
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "600", fontSize: 14 }}>
+                  {c.Teacher?.name || "Usuário"}
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    lineHeight: 20,
+                    marginTop: 2,
+                  }}
+                >
+                  {c.content}
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: colors.muted,
+                    marginTop: 4,
+                  }}
+                >
+                  {new Date(c.createdAt).toLocaleString()}
+                </Text>
+              </View>
             </View>
           ))
         )}
 
-        <TextInput
-          placeholder="Escreva um comentário..."
-          value={comment}
-          onChangeText={setComment}
+        {/* Campo de comentário */}
+        <View
           style={{
+            marginTop: spacing.md,
             borderWidth: 1,
             borderColor: "#ddd",
-            padding: 8,
-            borderRadius: 8,
-            marginTop: spacing.sm,
-            marginBottom: spacing.sm,
+            borderRadius: 12,
+            padding: spacing.sm,
+            backgroundColor: "#fff",
           }}
-        />
-        <Button
-          title={sendingComment ? "Enviando..." : "Enviar comentário"}
-          onPress={handleSendComment}
-        />
+        >
+          <TextInput
+            placeholder="Escreva um comentário..."
+            value={comment}
+            onChangeText={setComment}
+            multiline
+            style={{
+              minHeight: 60,
+              textAlignVertical: "top",
+              fontSize: 14,
+            }}
+          />
+
+          <View style={{ alignItems: "flex-end", marginTop: spacing.sm }}>
+            <Button
+              title={sendingComment ? "Enviando..." : "Enviar"}
+              onPress={handleSendComment}
+              disabled={sendingComment}
+            />
+          </View>
+        </View>
       </Card>
+
 
       {(isTeacher || isAdmin) && (
         <View

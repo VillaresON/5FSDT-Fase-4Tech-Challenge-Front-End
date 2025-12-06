@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -34,10 +36,13 @@ export default function PostListScreen({ navigation }) {
       setLoading(false);
     }
   }
-  
-  useEffect(() => {
-    loadPosts();
-  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadPosts();
+    }, [])
+  );
+
 
   const canCreatePost = isTeacher || isAdmin;
 
