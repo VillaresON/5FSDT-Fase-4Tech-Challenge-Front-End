@@ -121,10 +121,27 @@ const api = axios.create({
 
 ## 🐳 Docker (Web – Produção)
 
+### Build local
 ```bash
-docker build -t techchallenge-frontend .
-docker run -p 8080:80 techchallenge-frontend
+docker build -t villares/4fase-tech-challenge-front-end .
 ```
+
+### Docker Compose
+```bash
+docker-compose up --build
+```
+
+### Pull Image
+```bash
+docker pull villares/4fase-tech-challenge-front-end:latest
+```
+
+### Executar container
+```bash
+docker run --name 4FaseTechChallengeFrontEnd -p 3000:3000 villares/4fase-tech-challenge-back-end:latest
+```
+
+
 
 ---
 
