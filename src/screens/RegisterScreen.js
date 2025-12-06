@@ -24,27 +24,34 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    if (role !== "teacher") {
-      Alert.alert(
-        "Cadastro restrito",
-        "Somente professores podem ser cadastrados nesta tela."
-      );
-      return;
-    }
-
     try {
       setLoading(true);
 
+      if (role === "student") {
+        await api.post("/students", {
+          name,
+          email
+        });
+
+        Alert.alert("Sucesso", "Aluno cadastrado com sucesso!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+        return;
+      }
       await api.post("/auth/register", {
         name,
         email,
         password,
-        isAdmin: false,
+        isAdmin: role === "admin",
       });
 
-      Alert.alert("Sucesso", "Professor cadastrado com sucesso!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      Alert.alert(
+        "Sucesso",
+        role === "admin"
+          ? "Administrador criado com sucesso!"
+          : "Professor cadastrado com sucesso!",
+        [{ text: "OK", onPress: () => navigation.goBack() }]
+      );
     } catch (err) {
       const msg =
         err.response?.data?.error ||
@@ -54,6 +61,7 @@ export default function RegisterScreen({ navigation }) {
       setLoading(false);
     }
   }
+
 
 
   return (
@@ -127,12 +135,11 @@ export default function RegisterScreen({ navigation }) {
               }}
             />
 
-            <Text style={{ marginBottom: 4 }}>Papel</Text>
+            <Text style={{ marginBottom: 4 }}>Função</Text>
             <View style={{ flexDirection: "row", marginBottom: spacing.md }}>
               {[
                 { key: "teacher", label: "Professor" },
-                { key: "admin", label: "Admin" },
-                { key: "student", label: "Aluno" },
+                { key: "admin", label: "Admin" }
               ].map((opt) => (
                 <TouchableOpacity
                   key={opt.key}
@@ -174,7 +181,7 @@ export default function RegisterScreen({ navigation }) {
             </TouchableOpacity>
           </Card>
         </View>
-      </ScrollView> 
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

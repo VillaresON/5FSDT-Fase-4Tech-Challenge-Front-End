@@ -48,7 +48,7 @@ export default function TeacherCreateScreen({ navigation }) {
     <Screen>
       <Card>
         <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: spacing.md }}>
-          Novo Professor
+          Novo Professor / Admin
         </Text>
         <Text>Nome</Text>
         <TextInput

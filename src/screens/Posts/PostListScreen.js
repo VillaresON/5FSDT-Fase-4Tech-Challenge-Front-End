@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import MainMenu from "../../components/MainMenu";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import {
@@ -143,75 +144,8 @@ export default function PostListScreen({ navigation }) {
         />
       )}
 
-      {/* Ações inferiores */}
-      <View style={{ marginTop: spacing.md }}>
-        {canCreatePost && (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("PostCreate")}
-            style={{
-              backgroundColor: colors.primary,
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: spacing.sm,
-            }}
-          >
-            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600" }}>
-              + Novo Post
-            </Text>
-          </TouchableOpacity>
-        )}
+      <MainMenu navigation={navigation} />
 
-        {(isTeacher || isAdmin) && (
-          <>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Teachers")}
-              style={{
-                backgroundColor: "#0f766e",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: spacing.sm,
-              }}
-            >
-              <Text
-                style={{ color: "#fff", textAlign: "center", fontWeight: "500" }}
-              >
-                Gerenciar Professores
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Students")}
-              style={{
-                backgroundColor: "#4b5563",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: spacing.sm,
-              }}
-            >
-              <Text
-                style={{ color: "#fff", textAlign: "center", fontWeight: "500" }}
-              >
-                Gerenciar Alunos
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Admin")}
-              style={{
-                backgroundColor: "#6d28d9",
-                padding: 10,
-                borderRadius: 8,
-              }}
-            >
-              <Text
-                style={{ color: "#fff", textAlign: "center", fontWeight: "500" }}
-              >
-                Área Administrativa de Posts
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
     </Screen>
   );
 }

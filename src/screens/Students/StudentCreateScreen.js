@@ -10,7 +10,7 @@ export default function StudentCreateScreen({ navigation }) {
   const { isTeacher, isAdmin } = useContext(AuthContext);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ usar esse estado
 
   if (!isTeacher && !isAdmin) {
     return (
@@ -25,20 +25,32 @@ export default function StudentCreateScreen({ navigation }) {
 
   async function handleSave() {
     if (!name || !email) {
-      Alert.alert("Atenção", "Preencha nome e email.");
+      Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
+
     try {
-      setLoading(true);
-      await api.post("/students", { name, email });
-      Alert.alert("Sucesso", "Aluno criado com sucesso!", [
-        { text: "OK", onPress: () => navigation.goBack() },
+      setLoading(true); // ✅ começar loading
+
+      await api.post("/students", {
+        name,
+        email,
+      });
+
+      Alert.alert("Sucesso", "Aluno cadastrado com sucesso!", [
+        {
+          text: "OK",
+          onPress: () => navigation.goBack(), // ✅ volta pra lista; ela recarrega via useFocusEffect
+        },
       ]);
     } catch (err) {
-      console.log("Erro ao criar aluno:", err.response?.data || err.message);
-      Alert.alert("Erro", "Não foi possível criar o aluno.");
+      console.log("Erro ao cadastrar aluno:", err.response?.data || err.message);
+      Alert.alert(
+        "Erro",
+        err.response?.data?.error || "Não foi possível cadastrar."
+      );
     } finally {
-      setLoading(false);
+      setLoading(false); // ✅ finalizar loading
     }
   }
 
@@ -48,6 +60,7 @@ export default function StudentCreateScreen({ navigation }) {
         <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: spacing.md }}>
           Novo Aluno
         </Text>
+
         <Text>Nome</Text>
         <TextInput
           value={name}
@@ -60,6 +73,7 @@ export default function StudentCreateScreen({ navigation }) {
             marginBottom: spacing.sm,
           }}
         />
+
         <Text>Email</Text>
         <TextInput
           value={email}
@@ -74,11 +88,13 @@ export default function StudentCreateScreen({ navigation }) {
             marginBottom: spacing.md,
           }}
         />
+
         <Button
           title={loading ? "Salvando..." : "Salvar"}
           onPress={handleSave}
         />
       </Card>
+
       <View style={{ marginTop: spacing.md }}>
         <Button title="Cancelar" onPress={() => navigation.goBack()} />
       </View>

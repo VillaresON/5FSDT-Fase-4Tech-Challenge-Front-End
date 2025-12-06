@@ -64,7 +64,7 @@ export default function TeacherListScreen({ navigation }) {
           marginBottom: spacing.md,
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: "600" }}>Professores</Text>
+        <Text style={{ fontSize: 20, fontWeight: "600" }}>Professores/Admins</Text>
         <Button title="Voltar" onPress={() => navigation.goBack()} />
       </View>
 
@@ -109,7 +109,7 @@ export default function TeacherListScreen({ navigation }) {
 
       <View style={{ marginTop: spacing.md }}>
         <Button
-          title="Novo professor"
+          title="Novo professor / admin"
           onPress={() => navigation.navigate("TeacherCreate")}
         />
       </View>

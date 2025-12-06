@@ -1,68 +1,63 @@
-import React, { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Alert } from "react-native";
 import api from "../api/api";
 
 export const AuthContext = createContext({});
 
-export default function AuthProvider({ children }) {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const storedUser = await AsyncStorage.getItem("user");
-        const storedToken = await AsyncStorage.getItem("token");
-        if (storedUser && storedToken) {
-          setUser(JSON.parse(storedUser));
-        }
-      } finally {
-        setLoading(false);
+    async function loadStorage() {
+      const storedUser = await AsyncStorage.getItem("user");
+      const storedToken = await AsyncStorage.getItem("token");
+
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser));
+        api.defaults.headers.common.Authorization = `Bearer ${storedToken}`;
       }
+      setLoading(false);
     }
-    loadUser();
+    loadStorage();
   }, []);
 
-  async function login(email, password) {
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      const { token, user } = res.data;
+  async function login(email, password, type = "teacher") {
+    const endpoint =
+      type === "student" ? "/students/login" : "/auth/login";
 
-      await AsyncStorage.setItem("token", token);
-      await AsyncStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
-      Alert.alert("Sucesso", "Login realizado com sucesso!");
-    } catch (err) {
-      console.log("Login error:", err.response?.data || err.message);
-      const msg =
-        err.response?.data?.error ||
-        "Não foi possível fazer login. Verifique suas credenciais.";
-      Alert.alert("Erro no login", msg);
-      throw err;
-    }
+    const payload =
+      type === "student" ? { email } : { email, password };
+
+    const res = await api.post(endpoint, payload);
+
+    const { token, user } = res.data;
+
+    await AsyncStorage.setItem("user", JSON.stringify(user));
+    await AsyncStorage.setItem("token", token);
+
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    setUser(user);
   }
+
 
   async function logout() {
     await AsyncStorage.clear();
+    delete api.defaults.headers.common.Authorization;
     setUser(null);
-    Alert.alert("Até logo", "Você saiu do sistema.");
   }
-
-  const role = user?.role || (user?.isAdmin ? "admin" : user ? "teacher" : null);
-  const isAdmin = role === "admin";
-  const isTeacher =
-    role === "teacher" || role === "professor" || role === "docente" || isAdmin;
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
+        isAuthenticated: !!user,
+        isAdmin: !!user?.isAdmin,
+        isTeacher: !!user && !user.isStudent,
+        isStudent: !!user?.isStudent,
         login,
         logout,
-        isTeacher,
-        isAdmin,
       }}
     >
       {children}
