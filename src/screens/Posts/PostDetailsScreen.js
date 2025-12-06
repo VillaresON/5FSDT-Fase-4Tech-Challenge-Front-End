@@ -31,26 +31,33 @@ export default function PostDetailsScreen({ route, navigation }) {
     loadPost();
   }, []);
 
-  function handleDelete() {
-    Alert.alert("Confirmar", "Deseja excluir este post?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api.delete(`/posts/${id}`);
-            Alert.alert("Sucesso", "Post excluído com sucesso.", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
-          } catch (err) {
-            console.log("Erro ao excluir:", err.response?.data || err.message);
-            Alert.alert("Erro", "Não foi possível excluir o post.");
+  async function handleDelete(id) {
+    Alert.alert(
+      "Excluir",
+      "Deseja realmente excluir?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          async onPress() {
+            try {
+              await api.delete(`/posts/${id}`);
+
+              Alert.alert("Sucesso", "Post excluído", [
+                { text: "OK", onPress: loadPosts }
+              ]);
+            } catch (err) {
+              const msg =
+                err.response?.data?.error || "Erro ao excluir";
+              Alert.alert("Erro", msg);
+            }
           }
-        },
-      },
-    ]);
+        }
+      ]
+    );
   }
+
 
   async function handleSendComment() {
     if (!comment.trim()) {
