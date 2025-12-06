@@ -31,7 +31,7 @@ export default function PostDetailsScreen({ route, navigation }) {
     loadPost();
   }, []);
 
-  async function handleDelete(id) {
+  async function handleDelete() {
     Alert.alert(
       "Excluir",
       "Deseja realmente excluir?",
@@ -43,21 +43,29 @@ export default function PostDetailsScreen({ route, navigation }) {
           async onPress() {
             try {
               await api.delete(`/posts/${id}`);
+              setDeleted(true);
 
-              Alert.alert("Sucesso", "Post excluído", [
-                { text: "OK", onPress: loadPosts }
-              ]);
+              Alert.alert(
+                "Sucesso",
+                "Post excluído com sucesso",
+                [
+                  {
+                    text: "OK",
+                    onPress: () => navigation.goBack()
+                  }
+                ]
+              );
             } catch (err) {
-              const msg =
-                err.response?.data?.error || "Erro ao excluir";
-              Alert.alert("Erro", msg);
+              Alert.alert(
+                "Erro",
+                err.response?.data?.error || "Erro ao excluir"
+              );
             }
           }
         }
       ]
     );
   }
-
 
   async function handleSendComment() {
     if (!comment.trim()) {

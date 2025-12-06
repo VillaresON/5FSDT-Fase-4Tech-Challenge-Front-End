@@ -34,7 +34,7 @@ export default function PostListScreen({ navigation }) {
       setLoading(false);
     }
   }
-
+  
   useEffect(() => {
     loadPosts();
   }, []);
