@@ -1,8 +1,7 @@
-# 📱 Tech Challenge – Frontend (React Native + Expo)
+# 📱 Tech Challenge – Front-end Mobile (React Native + Expo)
 
-Este repositório contém o **frontend mobile** do projeto **Tech Challenge**, desenvolvido em **React Native com Expo**, integrado a uma API REST em Node.js.
-
-O aplicativo foi pensado para uso acadêmico, com foco em **boas práticas**, **controle de permissões**, **UI profissional** e **funcionamento real em celular**.
+Front-end mobile desenvolvido em **React Native com Expo**, consumindo uma API REST em Node.js + Sequelize.  
+Projeto criado para o **Tech Challenge da Faculdade**, seguindo boas práticas de arquitetura, autenticação, controle de permissões e UI moderna.
 
 ---
 
@@ -10,160 +9,126 @@ O aplicativo foi pensado para uso acadêmico, com foco em **boas práticas**, **
 
 - **React Native**
 - **Expo SDK 54**
-- **Expo Go**
+- **Expo Router / React Navigation**
 - **Axios**
-- **React Navigation**
 - **Context API**
 - **AsyncStorage**
 - **Expo Vector Icons**
+- **Docker (build web para produção)**
 
 ---
 
-## 👥 Tipos de Usuário
+## 🎯 Objetivo do Projeto
 
-O sistema trabalha com **3 perfis distintos**:
+Criar uma aplicação mobile onde:
 
-### 👨‍🏫 Professor
-- Login no sistema
-- Criar, editar e excluir posts
-- Gerenciar alunos
-- Comentar postagens
+- Professores e administradores podem **criar, editar e excluir postagens**
+- Alunos podem **visualizar e comentar postagens**
+- Existe **controle de acesso por perfil**
+- Interface moderna, intuitiva e responsiva
+- Integração total com o backend REST
+
+---
+
+## 👥 Perfis de Usuário
 
 ### 👨‍🎓 Aluno
-- Login no sistema
+- Login
 - Visualizar postagens
 - Comentar postagens
 
+### 👨‍🏫 Professor
+- Login
+- Criar, editar e excluir postagens
+- Gerenciar alunos
+- Comentar postagens
+
 ### 👑 Administrador
+- Login
 - Todas as permissões de professor
 - Gerenciar professores
-- Área administrativa completa de posts
+- Área administrativa completa
 
 ---
 
-## 📱 Funcionalidades
+## ✅ Funcionalidades
 
-### ✅ Autenticação
-- Login de professores, alunos e administradores
-- Logout
-- Persistência de sessão com AsyncStorage
-
-### ✅ Posts
-- Listagem de posts
-- Busca por palavra-chave
-- Visualização de detalhes
-- Criação, edição e exclusão (professor/admin)
-
-### ✅ Comentários
-- Listagem de comentários
-- Criação de comentários
-- Exibição do nome de quem comentou
-
-### ✅ Administração
-- CRUD de professores
-- CRUD de alunos
-- Controle de acesso por tipo de usuário
+- ✅ Autenticação (Login / Logout)
+- ✅ Registro de usuários (Professor / Admin / Aluno)
+- ✅ Autorização por perfil
+- ✅ Listagem de postagens
+- ✅ Busca por postagens
+- ✅ Detalhes do post
+- ✅ Comentários em postagens
+- ✅ CRUD completo de posts
+- ✅ CRUD de alunos
+- ✅ CRUD de professores
+- ✅ Tela administrativa
+- ✅ Feedback visual (alerts)
+- ✅ Interface adaptada ao teclado
+- ✅ SafeArea (respeita barra superior/inferior)
 
 ---
 
-## 🧠 Controle de Acesso
-
-O menu e as telas são exibidos dinamicamente de acordo com o perfil do usuário:
-
-| Funcionalidade | Aluno | Professor | Admin |
-|----------------|-------|-----------|-------|
-| Ver Posts | ✅ | ✅ | ✅ |
-| Comentar | ✅ | ✅ | ✅ |
-| Criar Post | ❌ | ✅ | ✅ |
-| Editar Post | ❌ | ✅ | ✅ |
-| Gerenciar Alunos | ❌ | ✅ | ✅ |
-| Gerenciar Professores | ❌ | ❌ | ✅ |
-
----
-
-## 🧩 Estrutura de Pastas
+## 🧱 Arquitetura de Pastas
 
 ```
-src
- ├── api
- ├── components
- ├── context
- ├── navigation
- ├── screens
- │   ├── Auth
- │   ├── Posts
- │   ├── Students
- │   ├── Teachers
- │   └── Admin
- └── styles
+src/
+ ├── api/
+ │   └── api.js
+ ├── components/
+ │   ├── Screen.js
+ │   └── Card.js
+ ├── context/
+ │   └── AuthContext.js
+ ├── screens/
+ │   ├── Auth/
+ │   ├── Posts/
+ │   ├── Students/
+ │   └── Teachers/
+ ├── styles/
+ │   └── theme.js
+ └── routes/
+     └── index.js
 ```
 
 ---
 
-## ▶️ Como executar o projeto
+## ▶️ Rodando o Projeto
 
-### 1. Instalar dependências
 ```bash
 npm install
-```
-
-### 2. Iniciar o projeto
-```bash
 npx expo start
 ```
-
-### 3. Executar no celular
-- Instale o **Expo Go**
-- Escaneie o QR Code exibido no terminal
 
 ---
 
 ## 🌐 Configuração da API
 
-No arquivo:
+Edite o arquivo:
+
 ```
 src/api/api.js
 ```
 
-Configure o `baseURL` com o IP da sua API backend:
-
 ```js
-baseURL: "http://SEU_IP_LOCAL:3000"
+const api = axios.create({
+  baseURL: "http://SEU_IP:3000",
+});
 ```
 
-⚠️ **Importante:** nunca use `localhost` no celular.
+---
+
+## 🐳 Docker (Web – Produção)
+
+```bash
+docker build -t techchallenge-frontend .
+docker run -p 8080:80 techchallenge-frontend
+```
 
 ---
 
-## 🎨 UI/UX
+## 👨‍💻 Autor
 
-- Layout com cards
-- Feedback visual para todas as ações
-- Alertas em:
-  - Login
-  - Cadastro
-  - Criação
-  - Edição
-  - Exclusão
-- Respeito a:
-  - Safe Area
-  - Barra superior (hora, bateria)
-  - Navegação Android
-
----
-
-## 🎓 Projeto Acadêmico
-
-Este projeto foi desenvolvido para fins acadêmicos, demonstrando:
-- Integração mobile + API
-- Autenticação e autorização
-- Arquitetura limpa
-- Uso real de Expo e React Native
-
-🔥 Pronto para apresentação em faculdade.
-
----
-
-## 📄 Licença
-
-Uso livre para fins educacionais.
+Jonathas Villares  
+🎓 Tech Challenge 
