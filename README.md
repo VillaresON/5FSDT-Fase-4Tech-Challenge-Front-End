@@ -1,60 +1,169 @@
-# Front-end React Native (Expo) - Tech Challenge
+# 📱 Tech Challenge – Frontend (React Native + Expo)
 
-Aplicativo **refeito do zero**, alinhado ao seu backend Node + Sequelize.
+Este repositório contém o **frontend mobile** do projeto **Tech Challenge**, desenvolvido em **React Native com Expo**, integrado a uma API REST em Node.js.
 
-## Funcionalidades implementadas
+O aplicativo foi pensado para uso acadêmico, com foco em **boas práticas**, **controle de permissões**, **UI profissional** e **funcionamento real em celular**.
 
-- Login de professor/admin (`/auth/login`)
-- Registro de professor/admin (`/auth/register`)
-- Lista de posts com:
-  - título, autor e prévia do conteúdo
-  - busca por palavra-chave
-  - botão para criar post (apenas professor/admin)
-  - botão para área administrativa, professores e alunos
-- Leitura de post + comentários (`/posts/:id` e `/posts/:id/comments`)
-- Criação e edição de posts (`/posts`)
-- CRUD de professores (`/teachers`)
-- CRUD de alunos (`/students`)
-- Área administrativa de posts
-- Autorização por perfil (teacher/admin)
-- Alert em **todas** as ações de criar / editar / excluir / erro
+---
 
-## Como rodar
+## 🚀 Tecnologias Utilizadas
 
-1. Entre na pasta do projeto:
+- **React Native**
+- **Expo SDK 54**
+- **Expo Go**
+- **Axios**
+- **React Navigation**
+- **Context API**
+- **AsyncStorage**
+- **Expo Vector Icons**
 
-   ```bash
-   cd mobile_refeito
-   ```
+---
 
-2. Instale as dependências:
+## 👥 Tipos de Usuário
 
-   ```bash
-   npm install
-   ```
+O sistema trabalha com **3 perfis distintos**:
 
-3. Ajuste o IP do backend:
+### 👨‍🏫 Professor
+- Login no sistema
+- Criar, editar e excluir posts
+- Gerenciar alunos
+- Comentar postagens
 
-   Edite `src/api/api.js` e troque:
+### 👨‍🎓 Aluno
+- Login no sistema
+- Visualizar postagens
+- Comentar postagens
 
-   ```js
-   baseURL: "http://192.168.1.13:3000"
-   ```
+### 👑 Administrador
+- Todas as permissões de professor
+- Gerenciar professores
+- Área administrativa completa de posts
 
-   para o IP da sua máquina (mesma rede do celular).
+---
 
-4. Rode o aplicativo:
+## 📱 Funcionalidades
 
-   ```bash
-   npm start
-   ```
+### ✅ Autenticação
+- Login de professores, alunos e administradores
+- Logout
+- Persistência de sessão com AsyncStorage
 
-5. Abra com o **Expo Go** no Android.
+### ✅ Posts
+- Listagem de posts
+- Busca por palavra-chave
+- Visualização de detalhes
+- Criação, edição e exclusão (professor/admin)
 
-## Observações
+### ✅ Comentários
+- Listagem de comentários
+- Criação de comentários
+- Exibição do nome de quem comentou
 
-- Login padrão que você já testou no backend (curl, Insomnia) deve funcionar aqui também.
-- Se receber 404 ou erro de rede, quase sempre é:
-  - IP errado no `api.js`
-  - Backend não está rodando
-  - Celular e PC não estão na mesma rede
+### ✅ Administração
+- CRUD de professores
+- CRUD de alunos
+- Controle de acesso por tipo de usuário
+
+---
+
+## 🧠 Controle de Acesso
+
+O menu e as telas são exibidos dinamicamente de acordo com o perfil do usuário:
+
+| Funcionalidade | Aluno | Professor | Admin |
+|----------------|-------|-----------|-------|
+| Ver Posts | ✅ | ✅ | ✅ |
+| Comentar | ✅ | ✅ | ✅ |
+| Criar Post | ❌ | ✅ | ✅ |
+| Editar Post | ❌ | ✅ | ✅ |
+| Gerenciar Alunos | ❌ | ✅ | ✅ |
+| Gerenciar Professores | ❌ | ❌ | ✅ |
+
+---
+
+## 🧩 Estrutura de Pastas
+
+```
+src
+ ├── api
+ ├── components
+ ├── context
+ ├── navigation
+ ├── screens
+ │   ├── Auth
+ │   ├── Posts
+ │   ├── Students
+ │   ├── Teachers
+ │   └── Admin
+ └── styles
+```
+
+---
+
+## ▶️ Como executar o projeto
+
+### 1. Instalar dependências
+```bash
+npm install
+```
+
+### 2. Iniciar o projeto
+```bash
+npx expo start
+```
+
+### 3. Executar no celular
+- Instale o **Expo Go**
+- Escaneie o QR Code exibido no terminal
+
+---
+
+## 🌐 Configuração da API
+
+No arquivo:
+```
+src/api/api.js
+```
+
+Configure o `baseURL` com o IP da sua API backend:
+
+```js
+baseURL: "http://SEU_IP_LOCAL:3000"
+```
+
+⚠️ **Importante:** nunca use `localhost` no celular.
+
+---
+
+## 🎨 UI/UX
+
+- Layout com cards
+- Feedback visual para todas as ações
+- Alertas em:
+  - Login
+  - Cadastro
+  - Criação
+  - Edição
+  - Exclusão
+- Respeito a:
+  - Safe Area
+  - Barra superior (hora, bateria)
+  - Navegação Android
+
+---
+
+## 🎓 Projeto Acadêmico
+
+Este projeto foi desenvolvido para fins acadêmicos, demonstrando:
+- Integração mobile + API
+- Autenticação e autorização
+- Arquitetura limpa
+- Uso real de Expo e React Native
+
+🔥 Pronto para apresentação em faculdade.
+
+---
+
+## 📄 Licença
+
+Uso livre para fins educacionais.
