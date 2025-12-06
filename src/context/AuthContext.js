@@ -22,12 +22,11 @@ export function AuthProvider({ children }) {
     loadStorage();
   }, []);
 
-  // ✅ LOGIN AGORA RECEBE TYPE
   async function login(email, password, type) {
     const res = await api.post("/auth/login", {
       email,
       password,
-      type, // ✅ AGORA ENVIA
+      type, 
     });
 
     const { token, user } = res.data;
